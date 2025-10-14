@@ -181,7 +181,7 @@ const Navbar = () => {
       </div>
 
       <div className="px-5 sm:px-10 bg-[#1A1A1A] flex flex-row items-center gap-10 sm:justify-between h-[110px] border-b-3 border-[#FFDE01]">
-        <img src="./logo.png" className="w-30 md:w-60" alt="" />
+        <img src="/logo.png" className="w-30 md:w-60" alt="" />
         <ul className="hidden sm:flex flex-row text-white font-extrabold gap-10 text-sm md:text-lg ">
           <li>
             <NavLink
