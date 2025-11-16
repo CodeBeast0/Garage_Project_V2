@@ -32,7 +32,7 @@ const garageSchema = new mongoose.Schema({
   },
   Ownedby: {
     type: mongoose.Schema.Types.ObjectId,
-       ref: "user",
+       ref: "users",
        required: true, 
   }
 });

@@ -1,6 +1,7 @@
 import garageModel from "../models/garage.js";
 import reservationModel from "../models/reservationModel.js";
 import { v2 as cloudinary } from "cloudinary";
+import validator from "validator";
 const creatGarage = async (req, res) => {
     try{
        const {location, name, description, capacity, openingHours} = req.body ;
@@ -80,5 +81,54 @@ const getAllGarages = async (req,res)=>{
     res.status(500).json({ success: false, message: error.message });
   }
 }
+const createMechanic = async (req, res) => {
+  try {
+    const { name, email, password , GarageId } = req.body;
+    const ownerId = req.user?._id;
+    const garage = await garageModel.findOne({ 
+      _id: GarageId, 
+      Ownedby: ownerId 
+    });
 
-export {creatGarage,listgaragereservations,getAllGarages};
+    if (!garage) {
+      return res.status(403).json({ 
+        success: false, 
+        message: "Unauthorized: You don't own this garage or garage doesn't exist" 
+      });
+    }
+    const exists = await userModel.findOne({ email });
+    if (exists) {
+      return res.json({ success: false, message: "Mechanic already exists" });
+    }
+    if (!validator.isEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter a valid email",
+      });
+    }
+
+    if (password.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter a strong password",
+      });
+    }
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+     const newUser = new userModel({
+      name,
+      email,
+      password: hashedPassword,
+      role : "mechanic",
+      Garage : GarageId
+    });
+
+    const user = await newUser.save();
+    const token = createToken(user._id);
+    res.status(201).json({ success: true, token });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+export {creatGarage,listgaragereservations,getAllGarages,createMechanic};
