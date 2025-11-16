@@ -16,7 +16,8 @@ const garageSchema = new mongoose.Schema({
     required: true,
   },
   openingHours: {
-    type: Number,
+    open: Number,
+    close:Number,
     required: true,
   },
   isActive: {
@@ -30,6 +31,11 @@ const garageSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  Ownedby: {
+    type: mongoose.Schema.Types.ObjectId,
+       ref: "user",
+       required: true, 
+  }
 });
 
 const garageModel =

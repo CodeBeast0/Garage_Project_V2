@@ -8,6 +8,7 @@ import garageRouter from './routes/garageRoute.js'
 import serviceRouter from './routes/serviceRoute.js'
 import reservationRouter from './routes/reservationRoute.js'
 import carRoute from './routes/carRoute.js'
+import { garageOwnerRoutes } from './routes/garageOwnerRoute.js'
 
 // App Config
 const app = express()
@@ -25,7 +26,7 @@ app.use('/api/garage',garageRouter)
 app.use('/api/service',serviceRouter)
 app.use('/api/Reservation',reservationRouter)
 app.use('/api/Car',carRoute)
-
+app.use('/api/garageOwnerRoutes', garageOwnerRoutes)
 
 app.get('/',(req,res)=>{
     res.send('APIs WORKING');
