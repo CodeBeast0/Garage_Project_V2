@@ -27,7 +27,6 @@ app.use('/api/service',serviceRouter)
 app.use('/api/Reservation',reservationRouter)
 app.use('/api/Car',carRoute)
 app.use('/api/garageOwnerRoutes', garageOwnerRoutes)
-
 app.get('/',(req,res)=>{
     res.send('APIs WORKING');
 })

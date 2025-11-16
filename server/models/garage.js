@@ -16,10 +16,9 @@ const garageSchema = new mongoose.Schema({
     required: true,
   },
   openingHours: {
-    open: Number,
-    close:Number,
-    required: true,
-  },
+  open: { type: Number, required: true },
+  close: { type: Number, required: true }
+},
   isActive: {
     type: Boolean,
   },

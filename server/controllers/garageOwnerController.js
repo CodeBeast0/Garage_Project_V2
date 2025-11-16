@@ -1,4 +1,5 @@
 import garageModel from "../models/garage.js";
+import reservationModel from "../models/reservationModel.js";
 import { v2 as cloudinary } from "cloudinary";
 const creatGarage = async (req, res) => {
     try{
@@ -47,4 +48,37 @@ catch(error){
     res.status(500).json({ success: false, message: error.message });
 }
 }
-export {creatGarage};
+const listgaragereservations = async(req,res)=>{
+    try {
+    const { garageId } = req.body;
+        const allreservations = await reservationModel.find({
+      garageId: garageId
+    })
+    .populate('userId', 'name email phone') 
+    .populate('serviceId', 'name price duration')   
+    .populate('carId', 'model brand year licensePlate') 
+    .sort({ reservationDate: 1 }); 
+
+    res.status(200).json({
+      success: true,
+      reservations: allreservations,
+      count: allreservations.length
+    });
+}catch(error){
+    console.error("Error fetching garage reservations:", error);
+    res.status(500).json({ success: false, message: error.message });
+}
+}
+const getAllGarages = async (req,res)=>{
+  try{
+    const userId = req.user?._id || req.body.Ownedby;
+    const garages = await garageModel.find({ Ownedby: userId });
+    res.status(200).json({success:true,garages: garages})
+  }
+  catch(error){
+    console.error("Error fetching garages list:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+}
+
+export {creatGarage,listgaragereservations,getAllGarages};
