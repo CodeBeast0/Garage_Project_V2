@@ -228,4 +228,24 @@ const acceptReservation = async (req, res) => {
     });
   }
 };
-export {creatGarage,listgaragereservations,getAllGarages,createMechanic,getAllReservations,acceptReservation};
+const declineReservation = async(req,res) => {
+  try {
+    const {reservationId} = req.body
+    
+    const reservation = await reservationModel.deleteOne({
+      _id:reservationId
+    })
+    if (reservation.deletedCount === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Reservation not found"
+      });
+    }
+   res.status(200).json({success :true , message:"reservation declined"})
+   }  
+    catch (error) {
+    res.status(500).json({success :false,message : "we couldn't  decline the reservation"
+    })
+  }
+}
+export {creatGarage,listgaragereservations,getAllGarages,createMechanic,getAllReservations,acceptReservation,getAllClients,declineReservation};
