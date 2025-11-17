@@ -21,7 +21,8 @@ const userSchema = new mongoose.Schema({
   role :{
      type: String,
     enum : ["user","mechanic","owner"],
-    required :true
+    required :true ,
+    default : "user"
   },
   Garage: {
       type: mongoose.Schema.Types.ObjectId,

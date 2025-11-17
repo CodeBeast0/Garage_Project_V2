@@ -10,44 +10,79 @@ const createToken = (id) => {
 
 const registerUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
-
-    // checking user already exists or not
+    const { name, email, password, role} = req.body; // Default role
+    console.log(role)
+    // Check if user already exists
     const exists = await userModel.findOne({ email });
     if (exists) {
-      return res.json({ success: false, message: "User already exists" });
+      return res.status(400).json({ 
+        success: false, 
+        message: "User already exists" 
+      });
     }
-    //validating email format & strong password
+
+    // Validate email format
     if (!validator.isEmail(email)) {
-      return res.json({
+      return res.status(400).json({
         success: false,
         message: "Please enter a valid email",
       });
     }
 
+    // Validate password strength
     if (password.length < 8) {
-      return res.json({
+      return res.status(400).json({
         success: false,
-        message: "Please enter a strong password",
+        message: "Password must be at least 8 characters long",
       });
     }
 
-    // hashing user password
+    // Validate role
+    const validRoles = ["user", "mechanic", "owner"];
+    const userRole = validRoles.includes(role) ? role : "user";
+
+    // Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // Create user with explicit role assignment
     const newUser = new userModel({
       name,
       email,
       password: hashedPassword,
+      role: userRole, // Explicitly set the role
     });
 
     const user = await newUser.save();
     const token = createToken(user._id);
-    res.json({ success: true, token });
+    
+    res.status(201).json({ 
+      success: true, 
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      }
+    });
+
   } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: error.message });
+    console.log("Registration error:", error);
+    
+    // Handle specific MongoDB validation errors
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({
+        success: false,
+        message: `Validation failed: ${errors.join(', ')}`
+      });
+    }
+    
+    res.status(500).json({ 
+      success: false, 
+      message: error.message 
+    });
   }
 };
 

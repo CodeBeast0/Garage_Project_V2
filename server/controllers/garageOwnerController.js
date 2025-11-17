@@ -131,4 +131,69 @@ const createMechanic = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-export {creatGarage,listgaragereservations,getAllGarages,createMechanic};
+const getAllReservations = async (req,res) => {
+  try {
+        const userId = req.user?._id ; 
+        const garages = await garageModel.find({ Ownedby: userId });
+        if (!garages.length) {
+      return res.status(200).json({
+        success: true,
+        reservations: [],
+        message: "No garages found for this user"
+      });
+    }
+    const garageIds = garages.map(garage => garage._id);
+    const reservations = await reservationModel.find({
+      garageId: { $in: garageIds } 
+    })
+    res.status(200).json({
+      success: true,
+      reservations: reservations,
+      count: reservations.length,
+      garageCount: garages.length
+    });
+  }
+  catch (error){
+    console.error("Error fetching garage reservations:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+}
+const getAllClients = async (req, res) => {
+  try {
+    const userId = req.user?._id;
+    const garages = await garageModel.find({ Ownedby: userId });
+    if (!garages.length) {
+      return res.status(200).json({
+        success: true,
+        clients: [],
+        message: "No garages found for this user"
+      });
+    }
+    const garageIds = garages.map(garage => garage._id);
+    const reservations = await reservationModel.find({
+      garageId: { $in: garageIds }
+    }).select('userId').distinct('userId');
+
+    if (!reservations.length) {
+      return res.status(200).json({
+        success: true,
+        clients: [],
+        message: "No clients found for your garages"
+      });
+    }
+    const clients = await userModel.find({
+      _id: { $in: reservations },
+      role: "user" 
+    });
+    res.status(200).json({
+      success: true,
+      clients: clients,
+      count: clients.length
+    });
+  } catch (error) {
+    console.error("Error fetching clients:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+}
+
+export {creatGarage,listgaragereservations,getAllGarages,createMechanic,getAllReservations};
