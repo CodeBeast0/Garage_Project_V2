@@ -9,7 +9,8 @@ const reservationSchema = mongoose.Schema({
   },
   status: {
     type: String,
-    default: "waiting",
+    enum : ["pending","accepted","refused"],
+    default: "pending",
   },
   carId: {
     type: mongoose.Schema.Types.ObjectId,

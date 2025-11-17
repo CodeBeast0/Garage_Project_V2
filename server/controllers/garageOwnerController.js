@@ -2,6 +2,7 @@ import garageModel from "../models/garage.js";
 import reservationModel from "../models/reservationModel.js";
 import { v2 as cloudinary } from "cloudinary";
 import validator from "validator";
+import userModel from "../models/user.js";
 const creatGarage = async (req, res) => {
     try{
        const {location, name, description, capacity, openingHours} = req.body ;
@@ -195,5 +196,36 @@ const getAllClients = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 }
+const acceptReservation = async (req, res) => {
+  try {
+    const { reservationId, mechanicId } = req.body;
+    if (!reservationId || !mechanicId) {
+      return res.status(400).json({
+        success: false,
+        message: "Reservation ID and Mechanic ID are required"
+      });
+    }
+    const updatedReservation = await reservationModel.findByIdAndUpdate(
+      reservationId,
+      {
+        status: "accepted",
+        mechanic: mechanicId,
+        updatedAt: new Date()
+      },
+      { new: true } 
+    )
+    res.status(200).json({
+      success: true,
+      message: "Reservation accepted successfully",
+      reservation: updatedReservation
+    });
 
-export {creatGarage,listgaragereservations,getAllGarages,createMechanic,getAllReservations};
+  } catch (error) {
+    console.error("Error accepting reservation:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+export {creatGarage,listgaragereservations,getAllGarages,createMechanic,getAllReservations,acceptReservation};
