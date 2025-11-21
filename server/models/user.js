@@ -1,23 +1,25 @@
 import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  lastName: {
-    type: String,
+const userSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    lastName: { type: String },
+    email: { type: String, required: true, unique: true },
+    phone: { type: String },
+    password: { type: String, required: true },
+
+    // NEW ROLE FIELD
+    role: {
+      type: String,
+      enum: ["client", "mechanic", "garageOwner"],
+      default: "client",
+    },
   },
-  phone: {
-    type: String,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  {
+    timestamps: true, // auto-createdAt & updatedAt
+  }
+);
+
 const userModel = mongoose.models.user || mongoose.model("user", userSchema);
+
 export default userModel;
