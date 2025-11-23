@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema({
     default: Date.now,
   },
   role :{
-     type: String,
+    type: String,
     enum : ["user","mechanic","owner"],
     required :true ,
     default : "user"
@@ -27,7 +27,16 @@ const userSchema = new mongoose.Schema({
   Garage: {
       type: mongoose.Schema.Types.ObjectId,
          ref: "garages", 
-    }
+    },
+  age : {
+    type : Number,
+  },
+  salary : {
+    type : Number
+  },
+  hours : {
+    type : number ,
+  }
 });
 const userModel = mongoose.models.user || mongoose.model("user", userSchema);
 export default userModel;

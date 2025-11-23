@@ -84,7 +84,7 @@ const getAllGarages = async (req,res)=>{
 }
 const createMechanic = async (req, res) => {
   try {
-    const { name, email, password , GarageId } = req.body;
+    const { name, email, password , GarageId ,hours,age,salary } = req.body;
     const ownerId = req.user?._id;
     const garage = await garageModel.findOne({ 
       _id: GarageId, 
@@ -114,6 +114,11 @@ const createMechanic = async (req, res) => {
         message: "Please enter a strong password",
       });
     }
+    if(age < 18){
+      return res.status(400).json({success : false , message :"too young"})}
+    if(salary < 530){
+      return res.status(400).json({success: false , message :"under the legal minumem"})
+    }
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
      const newUser = new userModel({
@@ -121,7 +126,10 @@ const createMechanic = async (req, res) => {
       email,
       password: hashedPassword,
       role : "mechanic",
-      Garage : GarageId
+      Garage : GarageId,
+      age : age,
+      salary : salary,
+      hours : hours,
     });
 
     const user = await newUser.save();
@@ -248,4 +256,67 @@ const declineReservation = async(req,res) => {
     })
   }
 }
-export {creatGarage,listgaragereservations,getAllGarages,createMechanic,getAllReservations,acceptReservation,getAllClients,declineReservation};
+const getAllMechanics = async (req,res) =>{
+  try {
+    const {ownerId} = req.body
+    const garages = await garageModel.find({
+        Ownedby : ownerId,
+      })
+    const mechanics  = await userModel.find({
+      role : "mechanic",
+      Garage : {$in : garages}
+    })
+    res.status(200).json({
+      success: true,
+      mechanics
+    });
+  } catch (error) {
+    res.status(500).json({success :false,message : "we couldn't  List all mechanics"})
+  }
+}
+const deleteMechanic = async (req,res) => {
+  try {
+      const {mechanicId} = req.body;
+      const mechanic = await userModel.deleteOne({
+        _id : mechanicId
+      })
+      if (await mechanic.deletedCount == 0 ){
+        return res.status(404).json({
+        success: false,
+        message: "mechanic not found"
+      });
+      }
+      else {
+        res.status(200).json({success :true , message:"mechanic deleted"})
+      }
+  } catch (error) {
+    res.status(500).json({success :false,message : "we couldn't  delete the mechanics"})
+  }
+}
+const updateMechanic = async (req,res) => {
+  try {
+      const {mechanincId,name, email, password , GarageId ,hours,age,salary}=req.body;
+  const update= await userModel.findByIdAndUpdate(
+    mechanincId,
+    {
+      name : name,
+      email : email,
+      password : password,
+      GarageId : GarageId ,
+      hours : hours,
+      salary : salary,
+      age : age,
+  },
+  { new: true }
+)
+  res.status(200).json({
+      success: true,
+      message: "mecahnic updated",
+      mechanic: update
+    });
+  } catch (error) {
+    console.error("Error accepting reservation:", error);
+    res.status(500).json({success :false,message : "we couldn't  update the mechanic"})
+  }
+}
+export {creatGarage,listgaragereservations,getAllGarages,createMechanic,getAllReservations,acceptReservation,getAllClients,declineReservation,getAllMechanics,deleteMechanic,updateMechanic};
